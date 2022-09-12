@@ -323,8 +323,11 @@ class HierMPNDecoder(nn.Module):
         hgraph = HTuple( mess = self.rnn_cell.get_init_state(graph_tensors[1]) )
         h = self.rnn_cell.get_hidden_state(htree.mess)
         h[1 : batch_size + 1] = init_vecs #wiring root (only for tree, not inter)
-        
+
+        all_mols = []
         for t in range(max_decode_step):
+            all_mols.append(graph_batch.get_mol())
+
             batch_list = [ bid for bid in range(batch_size) if len(stack[bid]) > 0 ]
             if len(batch_list) == 0: break
 
@@ -424,5 +427,6 @@ class HierMPNDecoder(nn.Module):
                         edge_feature = batch_idx.new_tensor( [child, stack[bid][-1], nth_child] )
                         new_edge = tree_batch.add_edge(child, stack[bid][-1], edge_feature)
 
-        return graph_batch.get_mol()
+        all_mols.append(graph_batch.get_mol())
+        return all_mols
 
